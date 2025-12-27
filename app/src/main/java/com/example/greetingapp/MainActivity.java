@@ -12,43 +12,48 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import com.example.yourapp.databinding.ActivityMainBinding; 
 
 public class MainActivity extends AppCompatActivity {
-    
-    // Using private access modifiers is better practice
-    private EditText editText;
-    private Button myButton;
-    private TextView title;
+
+    // View Binding replaces individual View declarations
+    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Initialize Binding
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-
-        // Standard Edge-to-Edge inset handling
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        
+        // Handle Insets using the binding object
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // Initializing Views
-        editText = findViewById(R.id.edittext);
-        myButton = findViewById(R.id.mybtn);
-        title = findViewById(R.id.wlc);
+        setupListeners();
+    }
 
-        // Using a Lambda expression for a cleaner click listener
-        myButton.setOnClickListener(v -> {
-            String input = editText.getText().toString().trim();
+    private void setupListeners() {
+        binding.mybtn.setOnClickListener(v -> {
+            String input = binding.edittext.getText().toString().trim();
 
-            if (!input.isEmpty()) {
-                Toast.makeText(MainActivity.this, 
-                    "Welcome " + input + " to our App", 
-                    Toast.LENGTH_SHORT).show();
+            if (input.isEmpty()) {
+                binding.edittext.setError("Name is required!");
             } else {
-                // Helpful feedback if the field is empty
-                editText.setError("Please enter your name");
+                // Change the Title text dynamically
+                binding.wlc.setText("Hello, " + input + "!");
+                
+                // Show the Toast
+                Toast.makeText(this, "Profile Updated", Toast.LENGTH_SHORT).show();
+                
+                // Clear the focus and hide keyboard for a better UX
+                binding.edittext.clearFocus();
             }
         });
     }
